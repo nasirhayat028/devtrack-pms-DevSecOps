@@ -194,7 +194,7 @@ pipeline {
             steps {
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'devtrack-pms-jenkins',
+                        credentialsId: 'devtrack-DevSecOps',
                         usernameVariable: 'GIT_USERNAME',
                         passwordVariable: 'GIT_PASSWORD'
                     )
