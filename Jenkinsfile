@@ -158,6 +158,20 @@ pipeline {
             }
         }
 
+        stage('Trivy Security Scan') {
+            steps {
+                container('trivy') {
+                    sh '''
+                        echo "=== Backend Image Scan ==="
+                        trivy image devtrack-devsecops-backend:${BUILD_NUMBER}
+
+                        echo "=== Frontend Image Scan ==="
+                        trivy image devtrack-devsecops-frontend:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
+
         stage('Login to Docker Hub') {
             steps {
                 container('docker-cli') {
