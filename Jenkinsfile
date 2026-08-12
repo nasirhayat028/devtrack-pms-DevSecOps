@@ -213,7 +213,7 @@ pipeline {
 
                         git commit -m "ci: update images to build ${BUILD_NUMBER}"
 
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/nasirhayat028/devtrack-pms-jenkins.git HEAD:main
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/nasirhayat028/devtrack-pms-DevSecOps.git HEAD:main
                     '''
                 }
             }
