@@ -1,0 +1,86 @@
+name: DevTrack CI
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+env:
+  IMAGE_TAG: ${{ github.sha }}  
+
+jobs:
+  verify-runner:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Node Version
+        run: node -v
+
+      - name: Check NPM Version
+        run: npm -v
+
+      - name: Print Current Directory
+        run: pwd
+
+      - name: List Files
+        run: ls -la
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+        
+      - name: Check Location
+        run: pwd
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Check Docker Version
+        run: docker --version
+      
+      - name: Check Docker Compose Version
+        run: docker compose version
+
+      - name: Build Backend Image
+        working-directory: ./backend
+        run: docker build -t nasirhayat028/devtrack-backend:$IMAGE_TAG .
+        
+      - name: Build Frontend Image
+        working-directory: ./frontend
+        run: docker build -t nasirhayat028/devtrack-frontend:$IMAGE_TAG .
+      - name: Verify Images
+        run: |
+          docker images | grep nasirhayat028
+          docker images | grep nasirhayat028
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Push Backend Image to Docker Hub
+        run: docker push nasirhayat028/devtrack-backend:$IMAGE_TAG
+      - name: Push Frontend Image to Docker Hub
+        run: docker push nasirhayat028/devtrack-frontend:$IMAGE_TAG
+
+      - name: Print GitHub Actor
+        run: echo "GitHub Actor:${{ github.actor }}"
+
+      - name: Update Kubernetes Manifests
+        run: ./scripts/update-manifests.sh
