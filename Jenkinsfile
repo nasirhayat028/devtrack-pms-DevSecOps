@@ -32,6 +32,17 @@ pipeline {
                 args:
                 - --host=tcp://0.0.0.0:2375
                 - --tls=false
+
+            - name: 'trivy'
+              image: 'aquasec/trivy:latest'
+              command: 'sleep'
+              args: 'infinity'
+              envVars: [
+                envVar(
+                key: 'DOCKER_HOST',
+                value: 'tcp://localhost:2375'
+                )
+            ]
             '''
         }
     }
@@ -62,6 +73,18 @@ pipeline {
                 }
             }
         }
+
+        stage('Test Trivy') {
+            steps {
+                container('trivy') {
+                    sh '''
+                        trivy --version
+                    '''
+                }
+            }
+        }
+    }
+}
 
         stage('Install Backend Dependencies') {
             steps {
