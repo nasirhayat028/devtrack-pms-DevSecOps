@@ -107,7 +107,7 @@ pipeline {
             steps {
                 container('docker-cli') {
                     dir('backend') {
-                        sh 'docker build -t dtrack-backend:$BUILD_NUMBER .'
+                        sh 'docker build -t devtrack-devsecops-backend:$BUILD_NUMBER .'
                     }
                 }
             }
@@ -117,7 +117,7 @@ pipeline {
             steps {
                 container('docker-cli') {
                     dir('frontend') {
-                        sh 'docker build -t dtrack-frontend:$BUILD_NUMBER .'
+                        sh 'docker build -t devtrack-devsecops-frontend:$BUILD_NUMBER .'
                     }
                 }
             }
@@ -162,14 +162,14 @@ pipeline {
                         )
                     ]) {
                         sh '''
-                            docker tag dtrack-backend:$BUILD_NUMBER \
-                                $DOCKER_USERNAME/dtrack-backend:$BUILD_NUMBER
+                            docker tag devtrack-devsecops-backend:$BUILD_NUMBER \
+                                $DOCKER_USERNAME/devtrack-devsecops-backend:$BUILD_NUMBER
 
-                            docker tag dtrack-frontend:$BUILD_NUMBER \
-                                $DOCKER_USERNAME/dtrack-frontend:$BUILD_NUMBER
+                            docker tag devtrack-devsecops-frontend:$BUILD_NUMBER \
+                                $DOCKER_USERNAME/devtrack-devsecops-frontend:$BUILD_NUMBER
 
-                            docker push $DOCKER_USERNAME/dtrack-backend:$BUILD_NUMBER
-                            docker push $DOCKER_USERNAME/dtrack-frontend:$BUILD_NUMBER
+                            docker push $DOCKER_USERNAME/devtrack-devsecops-backend:$BUILD_NUMBER
+                            docker push $DOCKER_USERNAME/devtrack-devsecops-frontend:$BUILD_NUMBER
                         '''
                     }
                 }
@@ -179,9 +179,9 @@ pipeline {
         stage('Update K8s Image Tags') {
             steps {
                 sh '''
-                    sed -i "s|nasirhayat028/dtrack-backend:.*|nasirhayat028/dtrack-backend:$BUILD_NUMBER|" k8s/backend/deployment.yaml
+                    sed -i "s|nasirhayat028/devtrack-devsecops-backend:.*|nasirhayat028/devtrack-devsecops-backend:$BUILD_NUMBER|" k8s/backend/deployment.yaml
 
-                    sed -i "s|nasirhayat028/dtrack-frontend:.*|nasirhayat028/dtrack-frontend:$BUILD_NUMBER|" k8s/frontend/deployment.yaml
+                    sed -i "s|nasirhayat028/devtrack-devsecops-frontend:.*|nasirhayat028/devtrack-devsecops-frontend:$BUILD_NUMBER|" k8s/frontend/deployment.yaml
 
                     echo "Updated image tags:"
                     grep "image:" k8s/backend/deployment.yaml
