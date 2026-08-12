@@ -76,7 +76,16 @@ pipeline {
         stage('Test Trivy') {
             steps {
                 container('trivy') {
-                    sh 'trivy --version'
+                    sh '''
+                        echo "=== Trivy Version ==="
+                        trivy --version
+                        
+                        echo "=== Docker Host ==="
+                        echo "$DOCKER_HOST"
+
+                        echo "=== Docker Connection ==="
+                        wget -qO- http://localhost:2375/version
+                    '''
                 }
             }
         }
