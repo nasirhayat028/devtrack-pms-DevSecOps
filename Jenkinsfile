@@ -158,15 +158,27 @@ pipeline {
             }
         }
 
-        stage('Trivy Security Scan') {
+        stage('Trivy Scan - Backend') {
             steps {
                 container('trivy') {
                     sh '''
-                        echo "=== Backend Image Scan ==="
-                        trivy image devtrack-devsecops-backend:${BUILD_NUMBER}
+                        trivy image \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        devtrack-devsecops-backend:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
 
-                        echo "=== Frontend Image Scan ==="
-                        trivy image devtrack-devsecops-frontend:${BUILD_NUMBER}
+        stage('Trivy Scan - Frontend') {
+            steps {
+                container('trivy') {
+                    sh '''
+                        trivy image \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        devtrack-devsecops-frontend:${BUILD_NUMBER}
                     '''
                 }
             }
