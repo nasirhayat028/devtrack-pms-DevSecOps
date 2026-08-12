@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        kubernetes {
+       kubernetes {
             yaml '''
             apiVersion: v1
             kind: Pod
@@ -12,7 +12,7 @@ pipeline {
                 - sleep
                 args:
                 - infinity
-             
+
               - name: docker-cli
                 image: docker:27-cli
                 env:
@@ -22,7 +22,7 @@ pipeline {
                 - sleep
                 args:
                 - infinity
-             
+
               - name: docker-daemon
                 image: docker:27-dind
                 securityContext:
@@ -33,16 +33,15 @@ pipeline {
                 - --host=tcp://0.0.0.0:2375
                 - --tls=false
 
-            - name: 'trivy'
-              image: 'aquasec/trivy:latest'
-              command: 'sleep'
-              args: 'infinity'
-              envVars: [
-                envVar(
-                key: 'DOCKER_HOST',
-                value: 'tcp://localhost:2375'
-                )
-            ]
+              - name: trivy
+                image: aquasec/trivy:latest
+                env:
+                - name: DOCKER_HOST
+                  value: tcp://localhost:2375
+                command:
+                - sleep
+                args:
+                - infinity
             '''
         }
     }
@@ -77,14 +76,10 @@ pipeline {
         stage('Test Trivy') {
             steps {
                 container('trivy') {
-                    sh '''
-                        trivy --version
-                    '''
+                    sh 'trivy --version'
                 }
             }
         }
-    
-
 
         stage('Install Backend Dependencies') {
             steps {
@@ -201,15 +196,23 @@ pipeline {
 
         stage('Update K8s Image Tags') {
             steps {
-                sh '''
-                    sed -i "s|nasirhayat028/devtrack-devsecops-backend:.*|nasirhayat028/devtrack-devsecops-backend:$BUILD_NUMBER|" k8s/backend/deployment.yaml
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'Jenkins-Login',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        sed -i "s|${DOCKER_USERNAME}/devtrack-devsecops-backend:.*|${DOCKER_USERNAME}/devtrack-devsecops-backend:${BUILD_NUMBER}|" k8s/backend/deployment.yaml
 
-                    sed -i "s|nasirhayat028/devtrack-devsecops-frontend:.*|nasirhayat028/devtrack-devsecops-frontend:$BUILD_NUMBER|" k8s/frontend/deployment.yaml
+                        sed -i "s|${DOCKER_USERNAME}/devtrack-devsecops-frontend:.*|${DOCKER_USERNAME}/devtrack-devsecops-frontend:${BUILD_NUMBER}|" k8s/frontend/deployment.yaml
 
-                    echo "Updated image tags:"
-                    grep "image:" k8s/backend/deployment.yaml
-                    grep "image:" k8s/frontend/deployment.yaml
-                '''
+                        echo "Updated image tags successfully:"
+                        grep "image:" k8s/backend/deployment.yaml
+                        grep "image:" k8s/frontend/deployment.yaml
+                    '''
+                }
             }
         }
 
@@ -241,6 +244,5 @@ pipeline {
                 }
             }
         }
-
     }
 }
