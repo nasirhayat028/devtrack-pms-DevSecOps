@@ -57,10 +57,17 @@ pipeline {
         stage('Gitleaks Secret Scan') {
             steps {
                 container('gitleaks') {
-                    sh 'gitleaks detect --no-git --exit-code 1'
+                    sh '''
+                        echo "=== Gitleaks Version ==="
+                        gitleaks version
+
+                        echo "=== Secret Scan ==="
+                        gitleaks detect --no-git --exit-code 1
+                    '''
                 }
             }
         }
+
         stage('Inspect Repository') {
             steps {
                 sh 'pwd'
@@ -75,26 +82,6 @@ pipeline {
                     sh 'npm --version'
                 }
                 sh 'git --version'
-            }
-        }
-
-        stage('Check Gitleaks Environment') {
-            steps {
-                sh '''
-                    echo "=== Agent ==="
-                    whoami
-                    hostname
-
-                    echo "=== OS ==="
-                    cat /etc/os-release
-
-                    echo "=== PATH ==="
-                    echo $PATH
-
-                    echo "=== Gitleaks ==="
-                    which gitleaks || true
-                    gitleaks version || true
-                '''
             }
         }
 
