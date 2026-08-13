@@ -114,7 +114,7 @@ pipeline {
                         wget -S --spider https://mirror.gcr.io 2>&1 | head -30
 
                         echo '=== Trivy DB Test ==='
-                        trivy image --download-db-only
+                        trivy image --db-repository ghcr.io/aquasecurity/trivy-db:2 --download-db-only
                     '''
                 }
             }
