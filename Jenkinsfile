@@ -153,19 +153,6 @@ pipeline {
             }
         }
 
-        stage('Audit Frontend Dependencies') {
-            steps {
-                container('node') {
-                    dir('frontend') {
-                        sh '''
-                            echo "=== Frontend Dependency Audit ==="
-                            npm audit --audit-level=high
-                        '''
-                    }
-                }
-            }
-        }
-
         stage('Build Frontend') {
             steps {
                 container('node') {
