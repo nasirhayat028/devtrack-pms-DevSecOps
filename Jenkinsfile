@@ -130,11 +130,37 @@ pipeline {
             }
         }
 
+        stage('Audit Backend Dependencies') {
+            steps {
+                container('node') {
+                    dir('backend') {
+                        sh '''
+                            echo "=== Backend Dependency Audit ==="
+                            npm audit --audit-level=high
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Install Frontend Dependencies') {
             steps {
                 container('node') {
                     dir('frontend') {
                         sh 'npm ci'
+                    }
+                }
+            }
+        }
+
+        stage('Audit Frontend Dependencies') {
+            steps {
+                container('node') {
+                    dir('frontend') {
+                        sh '''
+                            echo "=== Frontend Dependency Audit ==="
+                            npm audit --audit-level=high
+                        '''
                     }
                 }
             }
