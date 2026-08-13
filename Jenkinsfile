@@ -64,6 +64,19 @@ pipeline {
             }
         }
 
+        stage('Check Gitleaks') {
+            steps {
+                sh '''
+                    echo "=== Agent ==="
+                    whoami
+                    hostname
+
+                    echo "=== Gitleaks ==="
+                    gitleaks version
+                '''
+            }
+        }
+
         stage('Verify Docker') {
             steps {
                 container('docker-cli') {
