@@ -42,11 +42,25 @@ pipeline {
                 - sleep
                 args:
                 - infinity
+
+                - name: gitleaks
+                image: zricethezav/gitleaks:latest
+                command:
+                  - cat
+                tty: true
             '''
         }
     }
 
     stages {
+
+        stage('Gitleaks Secret Scan') {
+            steps {
+                container('gitleaks') {
+                    sh 'gitleaks detect --no-git --exit-code 1'
+                }
+            }
+        }
         stage('Inspect Repository') {
             steps {
                 sh 'pwd'
