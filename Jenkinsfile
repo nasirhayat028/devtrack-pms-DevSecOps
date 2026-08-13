@@ -43,10 +43,10 @@ pipeline {
                 args:
                 - infinity
 
-                - name: gitleaks
+              - name: gitleaks
                 image: zricethezav/gitleaks:latest
                 command:
-                  - cat
+                - cat
                 tty: true
             '''
         }
