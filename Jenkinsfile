@@ -48,6 +48,13 @@ pipeline {
                 command:
                 - cat
                 tty: true
+
+              - name: sonarscanner
+                image: sonarsource/sonar-scanner-cli:latest
+                command:
+                - sleep
+                args:
+                - infinity
             '''
         }
     }
@@ -148,6 +155,35 @@ pipeline {
                 container('node') {
                     dir('frontend') {
                         sh 'npm ci'
+                    }
+                }
+            }
+        }
+
+        stage('Audit Frontend Dependencies') {
+            steps {
+                container('node') {
+                    dir('frontend') {
+                        sh '''
+                            echo "=== Frontend Dependency Audit ==="
+                            npm audit --audit-level=high
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Code Analysis') {
+            steps {
+                container('sonarscanner') {
+                    withSonarQubeEnv('sonarqube') {
+                        sh '''
+                            echo "=== SonarQube Version ==="
+                            sonar-scanner --version
+        
+                            echo "=== SonarQube Code Analysis ==="
+                            sonar-scanner
+                        '''
                     }
                 }
             }
