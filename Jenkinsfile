@@ -100,12 +100,18 @@ pipeline {
                     sh '''
                         echo "=== Trivy Version ==="
                         trivy --version
-                        
+        
                         echo "=== Docker Host ==="
-                        echo "$DOCKER_HOST"
-
+                        echo $DOCKER_HOST
+        
                         echo "=== Docker Connection ==="
                         wget -qO- http://localhost:2375/version
+        
+                        echo "=== Internet Connectivity ==="
+                        wget -S --spider https://ghcr.io 2>&1 | head -30
+        
+                        echo "=== Trivy DB Registry ==="
+                        wget -S --spider https://mirror.gcr.io 2>&1 | head -30
                     '''
                 }
             }
