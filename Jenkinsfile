@@ -64,15 +64,22 @@ pipeline {
             }
         }
 
-        stage('Check Gitleaks') {
+        stage('Check Gitleaks Environment') {
             steps {
                 sh '''
                     echo "=== Agent ==="
                     whoami
                     hostname
 
+                    echo "=== OS ==="
+                    cat /etc/os-release
+
+                    echo "=== PATH ==="
+                    echo $PATH
+
                     echo "=== Gitleaks ==="
-                    gitleaks version
+                    which gitleaks || true
+                    gitleaks version || true
                 '''
             }
         }
