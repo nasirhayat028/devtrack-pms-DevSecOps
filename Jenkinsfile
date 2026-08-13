@@ -112,6 +112,9 @@ pipeline {
         
                         echo "=== Trivy DB Registry ==="
                         wget -S --spider https://mirror.gcr.io 2>&1 | head -30
+
+                        echo '=== Trivy DB Test ==='
+                        trivy image --download-db-only
                     '''
                 }
             }
